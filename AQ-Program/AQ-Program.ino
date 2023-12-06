@@ -6,6 +6,7 @@
 * The program can be configured to print data on the serial monitor or LCD screen, or both.
 * 
 * Author: Popescu Filimon Andrei Cosmin
+* Author github profile: https://github.com/andreipopescufilimon
 * Last update: March 6, 2023
 */
 
@@ -22,8 +23,8 @@
 
 
 // Define constants and variables
-#define lcdprint 0     //lcd print = 0 - printing data on lcd / lcdprint = 1 - not printing data on serial
-#define serialprint 0  //serialprint = 0 - printing data on serial /serialprint = 1 - not printing data on serial
+#define lcdprint 0     //lcd print = 0 - printing data on lcd screen / lcdprint = 1 - not printing data on lcd screen
+#define serialprint 1  //serialprint = 0 - printing data on serial / serialprint = 1 - not printing data on serial
 
 // Pins
 #define Board ("Arduino Mega 2560")
@@ -415,7 +416,7 @@ void setup() {
   MQ135.init();
   MQ135.setRegressionMethod(1);  //_PPM =  a*ratio^b
 
-  /*****************************  MQ CAlibration ********************************************/
+  /*****************************  MQ Sensors Calibration ********************************************/
   if (serialprint == 0) {
     Serial.print("Calibrating please wait...");
   }
@@ -525,7 +526,7 @@ void setup() {
     while (1)
       ;
   }
-  /*****************************  MQ CAlibration ********************************************/
+  /*****************************  MQ Sensors Calibration ********************************************/
 
   if (serialprint == 0) {
     // Print in serial monitor
@@ -539,12 +540,11 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-
   float gpslat, gpslng;
   int year, month, day;
   int hour, min, sec, centi;
 
-  // GPS Data
+  // Read GPS Data
   while (Serial1.available() > 0) {
     gps.encode(Serial1.read());
   }
@@ -672,9 +672,11 @@ void loop() {
   MQ8.update();
   MQ9.update();
   MQ135.update();
+  
   // Read the sensor and print in serial port
   float MQ2Lecture = MQ2.readSensor();
   float MQ3Lecture = MQ3.readSensor();
+  
   // MQ4
   MQ4.setA(3811.9);
   MQ4.setB(-3.113);              // Configurate the ecuation values to get CH4 concentration
@@ -693,6 +695,7 @@ void loop() {
   float MQ7Lecture = MQ7.readSensor();
   float MQ8Lecture = MQ8.readSensor();
   float MQ9Lecture = MQ9.readSensor();
+ 
   // MQ135
   MQ135.setA(605.18);
   MQ135.setB(-3.937);             // Configurate the ecuation values to get CO concentration
@@ -709,8 +712,8 @@ void loop() {
   MQ135.setA(34.668);
   MQ135.setB(-3.369);                  // Configurate the ecuation values to get Acetona concentration
   float Acetona = MQ135.readSensor();  // Sensor will read PPM concentration using the model and a and b values setted before or in the setup
-    // Reading temperature or humidity takes about 250 milliseconds!
-  // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
+  
+  // Reading temperature or humidity takes about 250 milliseconds!
   float h = dht.readHumidity();
   // Read temperature as Celsius (the default)
   float t = dht.readTemperature();
@@ -729,6 +732,7 @@ void loop() {
   // Compute heat index in Celsius (isFahreheit = false)
   float hic = dht.computeHeatIndex(t, h, false);
   // Sensors Data Read End
+  
   if (lcdprint == 0) {
     lcd.clear();
     lcd.setCursor(1, 0);
@@ -1050,6 +1054,7 @@ void loop() {
     Serial.print(NH4);
     Serial.println("|");
   }
+  
   // Sensors data LCD write End
   read_no++;
   if (read_no > 1000000)
